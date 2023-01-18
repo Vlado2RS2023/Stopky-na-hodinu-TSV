@@ -1,0 +1,98 @@
+#include <Wire.h>
+
+#include <LiquidCrystal.h>
+
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd (0x27, 16,2);
+
+
+
+
+void setup() // vykoná sa len raz pri spustení
+{
+  Serial.begin(9600);
+  lcd.clear();
+  lcd. init ();
+  lcd. backlight ();  
+  lcd.print(" STOPKY - ZILKA");
+  delay(1000);  
+  
+
+  pinMode(16, OUTPUT);         //DEKLARACIA DIGITALNYCH PINOV NA KTORE SU NAPOJENE TLACIDLA
+  digitalWrite(16, LOW);      // START čáká sa na + cez switch
+  pinMode(17, OUTPUT);
+  digitalWrite(17, LOW);     //RESET čáká sa na + cez switch
+  pinMode(18, OUTPUT);
+  digitalWrite(18, LOW);    //STOP čáká sa na + cez switch
+  
+
+}
+double i = 0;            //Premenné pre čas, je racionálne číslo s dvojitou presnosťou.
+double a = millis();
+double c ;
+
+void loop()
+{
+lcd.clear();
+
+lcd.print(" STOPKY - START");
+delay(30);
+
+  
+ if(digitalRead(16) == HIGH)     // START -  načíta z pinu hodnotu
+  { 
+    {
+    tone(12, 800, 100);
+    delay(20);
+    noTone(12);
+    }
+
+   lcd.clear();
+   a = millis();
+   while(digitalRead(18) == LOW)    // STOP  - načíta z pinu hodnotu- ak je podmienka pravdivá všetky príkazy sa vykonávajú
+   {
+    
+   
+   c = millis();                        // beziaci čas
+   i = (c - a) / 1000;
+   lcd.print(i);
+   
+   lcd.setCursor(0,0);
+   lcd.print(" STOPKY - STOP");
+
+   lcd.setCursor(0,1);
+   lcd.print("TIME:");
+   lcd.setCursor(12,1);
+   Serial.println(c); // vypíše čas
+   Serial.println(a);
+   Serial.println(i);
+   Serial.println("......");
+
+   delay(100);
+   }
+
+   if(digitalRead(18) == HIGH);       //STOP Ak je podmienka pravdivá všetky príkazy sa vykonávajú
+    {
+      lcd.setCursor(0,0);
+      lcd.print(" STOPKY - RESET");
+    }
+
+   
+   if(digitalRead(17) == LOW)            //Reset
+   {
+     while(digitalRead(17) == LOW)       //Reset Ak je podmienka pravdivá všetky príkazy sa vykonávajú
+     {
+      lcd.setCursor(12,1);
+       lcd.print(i);
+       lcd.setCursor(0,1);
+       delay(100);
+     }
+   }
+
+ }
+}
+
+
+
+
